@@ -13,4 +13,6 @@
   loop: "{{ section.options | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  notify: Reload smbd
+  notify:
+    - Validate smb.conf
+    - Restart smbd

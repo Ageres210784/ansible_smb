@@ -1,5 +1,13 @@
 ---
-- name: Reload smbd
+- name: Validate smb.conf
+  ansible.builtin.command: testparm -s
+  changed_when: false
+  register: testparm_result
+  failed_when: testparm_result.rc != 0
+- name: Restart smbd
   ansible.builtin.service:
     name: smbd
-    state: reloaded
+    state: restarted
+  when:
+    - testparm_result is defined
+    - testparm_result.rc == 0
