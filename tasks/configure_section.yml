@@ -1,0 +1,16 @@
+---
+- name: Ensure smb config [{{ section.name }}] section
+  community.general.ini_file:
+    path: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: 644
+    section: "{{ section.name }}"
+    option: "   {{ item.key }}"
+    value: "{{ item.value }}"
+    modify_inactive_option: false
+  register: test
+  loop: "{{ section.options | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Reload smbd

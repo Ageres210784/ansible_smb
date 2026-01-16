@@ -1,0 +1,22 @@
+---
+- name: Install smb packages
+  ansible.builtin.apt:
+    name: "{{ smb_packages }}"
+
+- name: Ensure smb config file
+  ansible.builtin.include_tasks: configure_section.yml
+  loop: "{{ smb_sections_config }}"
+  loop_control:
+    label: "{{ section.name }}"
+    loop_var: "section"
+
+- name: Ensure smb users
+  ansible.builtin.include_tasks:
+    file: configure_user.yml
+    apply:
+      tags: test
+  loop: "{{ smb_users }}"
+  loop_control:
+    label: "{{ user.name }}"
+    loop_var: "user"
+  tags: test

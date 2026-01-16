@@ -1,0 +1,33 @@
+- name: Check samba user - [{{ user.name }}]
+  command: pdbedit -L -v {{ user.name }}
+  register: smb_user_check
+  failed_when: false
+  changed_when: false
+
+- name: Get Account Flags for user - [{{ user.name }}]
+  set_fact:
+    account_flags: "{{ smb_user_check.stdout_lines | select('search','^Account Flags:') | list | first | default('') }}"
+
+- name: Create samba user - [{{ user.name }}]
+  command: smbpasswd -a {{ user.name }}
+  args:
+    stdin: "{{ user.password }}\n{{ user.password }}"
+  register: smb_user_created
+  when:
+    - smb_user_check.rc != 0
+    - user.enabled | default(true)
+
+- name: Ensure samba user is in the correct enabled state
+  block:
+    - name: Enable user - [{{ user.name }}]
+      command: smbpasswd -e {{ user.name }}
+      when:
+        - user.enabled | default(true)
+        - account_flags is search('D')
+
+    - name: Disable user - [{{ user.name }}]
+      command: smbpasswd -d {{ user.name }}
+      when:
+        - not user.enabled | default(true)
+        - account_flags is not search('D')
+  when: smb_user_check.rc == 0 or (smb_user_created is defined and smb_user_created is succeeded)

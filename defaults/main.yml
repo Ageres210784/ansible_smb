@@ -1,0 +1,21 @@
+---
+smb_packages:
+  - samba
+  - samba-vfs-modules  # recycle
+
+smb_sections_config: []
+# example
+# smb_sections_config:
+#   - name: global
+#     options:
+#       security: "user"
+#       passdb backend: "tdbsam"
+#       map to guest: "never"
+#       usershare allow guests: "no"
+
+smb_users: []
+# example
+# smb_users:
+#   - name: smb-reader
+#     password: secret
+#     enabled: yes  # default yes
